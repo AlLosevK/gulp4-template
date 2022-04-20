@@ -24,5 +24,8 @@
     "jquery": "^3.6.0",
     "pngquant-bin": "^6.0.0",
     "sass": "^1.50.1"
+  },
+  "dependencies": {
+    "emmet-atom-plugin": "^0.0.1"
   }
 }

@@ -32,6 +32,12 @@ const imagecomp = require('compress-images');
 // Подключаем модуль del
 const del = require('del');
 
+//svg sprite
+var svgSprite = require('gulp-svg-sprite');
+var svgmin = 		require('gulp-svgmin');
+var	cheerio = 	require('gulp-cheerio');
+var	replace = 	require('gulp-replace');
+
 // Определяем логику работы Browsersync
 function browsersync() {
 	browserSync.init({ // Инициализация Browsersync
@@ -60,7 +66,8 @@ function scripts() {
 }
 
 function styles() {
-	return src('app/' + preprocessor + '/main.' + preprocessor + '') // Выбираем источник: "app/sass/main.sass" или "app/less/main.less"
+	return src(['node_modules/bootstrap/dist/css/bootstrap.min.css',
+		'app/' + preprocessor + '/main.' + preprocessor + '']) // Выбираем источник: "app/sass/main.sass" или "app/less/main.less"
 	.pipe(eval(preprocessor)()) // Преобразуем значение переменной "preprocessor" в функцию
 	.pipe(concat('app.min.css')) // Конкатенируем в файл app.min.js
 	.pipe(autoprefixer({ overrideBrowserslist: ['last 10 versions'], grid: true })) // Создадим префиксы с помощью Autoprefixer
@@ -88,6 +95,42 @@ async function images() {
 
 function cleanimg() {
 	return del('app/images/dest/**/*', { force: true }) // Удаляем всё содержимое папки "app/images/dest/"
+}
+
+function svgsprite() {
+	return src('app/images/src/icons/*.svg')
+	// minify svg
+		.pipe(svgmin({
+			js2svg: {
+				pretty: true
+			}
+		}))
+		// remove all fill, style and stroke declarations in out shapes
+		.pipe(cheerio({
+			run: function ($) {
+				$('[fill]').removeAttr('fill');
+				$('[stroke]').removeAttr('stroke');
+				$('[style]').removeAttr('style');
+			},
+			parserOptions: {xmlMode: true}
+		}))
+		// cheerio plugin create unnecessary string '&gt;', so replace it.
+		.pipe(replace('&gt;', '>'))
+		// build svg sprite
+		.pipe(svgSprite({
+			mode: {
+				symbol: {
+					sprite: "../sprite.svg",
+					render: {
+						sass: {
+							dest:'../../../sass/utils/_sprite.sass',
+							template: "app/sass/utils/_sprite_template.sass"
+						}
+					}
+				}
+			}
+		}))
+		.pipe(dest('app/images/dest/'))
 }
 
 function buildcopy() {
@@ -141,4 +184,4 @@ exports.cleanimg = cleanimg;
 exports.build = series(cleandist, styles, scripts, images, buildcopy);
 
 // Экспортируем дефолтный таск с нужным набором функций
-exports.default = parallel(pugf, styles, scripts, browsersync, startwatch);
+exports.default = parallel(pugf, svgsprite, styles, scripts, browsersync, startwatch);

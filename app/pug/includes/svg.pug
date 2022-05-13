@@ -1,0 +1,8 @@
+- var svgSprite = 'images/dest/sprite.svg'
+mixin icon(name, modClass)
+  if modClass == undefined
+    - var modClass = ''
+  else
+    - var modClass = ' ' + modClass
+  svg(class="icon icon-" + name + modClass)
+    use(xlink:href= svgSprite + '#' + name)

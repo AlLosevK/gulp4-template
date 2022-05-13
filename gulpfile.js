@@ -177,6 +177,9 @@ exports.styles = styles;
 // Экспорт функции images() в таск images
 exports.images = images;
 
+// Экспорт функции svgSprite() в таск images
+exports.svgsprite = svgsprite;
+
 // Экспортируем функцию cleanimg() как таск cleanimg
 exports.cleanimg = cleanimg;
 

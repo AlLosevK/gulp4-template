@@ -108,9 +108,9 @@ function svgsprite() {
 		// remove all fill, style and stroke declarations in out shapes
 		.pipe(cheerio({
 			run: function ($) {
-				$('[fill]').removeAttr('fill');
-				$('[stroke]').removeAttr('stroke');
-				$('[style]').removeAttr('style');
+				// $('[fill]').removeAttr('fill');
+				// $('[stroke]').removeAttr('stroke');
+				// $('[style]').removeAttr('style');
 			},
 			parserOptions: {xmlMode: true}
 		}))
@@ -150,6 +150,9 @@ function cleandist() {
 function startwatch() {
 	// Мониторим файлы препроцессора Pug на изменения
 	watch('app/pug/**/*.pug', pugf);
+
+	// Мониторим файлы иконки на изменения
+	watch('app/images/src/icons/*.svg', svgsprite);
 
 	// Выбираем все файлы JS в проекте, а затем исключим с суффиксом .min.js
 	watch(['app/**/*.js', '!app/**/*.min.js'], scripts);

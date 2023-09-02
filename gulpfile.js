@@ -38,6 +38,13 @@ var svgmin = 		require('gulp-svgmin');
 var	cheerio = 	require('gulp-cheerio');
 var	replace = 	require('gulp-replace');
 
+//webp
+const webp = require('gulp-webp');
+const cache = require('gulp-cache');
+const imagemin = require('gulp-imagemin');
+const pngquant = require('imagemin-pngquant');
+const jpegrecompress = require('imagemin-jpeg-recompress');
+
 // Определяем логику работы Browsersync
 function browsersync() {
 	browserSync.init({ // Инициализация Browsersync
@@ -48,7 +55,7 @@ function browsersync() {
 }
 
 function pugf() {
-	return src('app/pug/index.pug')
+	return src('app/pug/index*.pug')
 	.pipe(pug({pretty: true}))
 	.pipe(dest('app/'))
 	.pipe(browserSync.stream())
@@ -91,6 +98,13 @@ async function images() {
 			}
 		}
 	)
+}
+
+async function webpf() {
+  return src(['app/images/src/**/*.*', '!app/images/src/**/*.svg'])
+    .pipe(webp())
+		.pipe(dest('app/images/dest/')) // Выгружаем готовый файл в папку назначения
+		.pipe(browserSync.stream()) // Триггерим Browsersync для обновления страницы
 }
 
 function cleanimg() {
@@ -138,7 +152,11 @@ function buildcopy() {
 		'app/css/**/*.min.css',
 		'app/js/**/*.min.js',
 		'app/images/dest/**/*',
+		'app/fonts/**/*',
+		'app/php/**/*',
+		'app/pdf/**/*',
 		'app/**/*.html',
+		'app/**/*.ico',
 		], { base: 'app' }) // Параметр "base" сохраняет структуру проекта при копировании
 	.pipe(dest('dist')) // Выгружаем в папку с финальной сборкой
 }
@@ -163,8 +181,14 @@ function startwatch() {
 	// Мониторим файлы HTML на изменения
 	watch('app/**/*.html').on('change', browserSync.reload);
 
+	// Мониторим файлы PHP на изменения
+	watch('app/**/*.php').on('change', browserSync.reload);
+
 	// Мониторим папку-источник изображений и выполняем images(), если есть изменения
 	watch('app/images/src/**/*', images);
+
+	// Мониторим папку-источник изображений и выполняем images(), если есть изменения
+	watch('app/images/src/**/*.*', webpf);
 
 }
 
@@ -180,6 +204,9 @@ exports.styles = styles;
 // Экспорт функции images() в таск images
 exports.images = images;
 
+// Экспорт функции webp() в таск webp
+exports.webp = webpf;
+
 // Экспорт функции svgSprite() в таск images
 exports.svgsprite = svgsprite;
 
@@ -187,7 +214,7 @@ exports.svgsprite = svgsprite;
 exports.cleanimg = cleanimg;
 
 // Создаём новый таск "build", который последовательно выполняет нужные операции
-exports.build = series(cleandist, styles, scripts, images, buildcopy);
+exports.build = series(cleandist, styles, scripts, webpf, images, buildcopy);
 
 // Экспортируем дефолтный таск с нужным набором функций
-exports.default = parallel(pugf, svgsprite, styles, scripts, browsersync, startwatch);
+exports.default = parallel(pugf, svgsprite, webpf, images, styles, scripts, browsersync, startwatch);

@@ -13,7 +13,6 @@
     "browser-sync": "^2.27.9",
     "compress-images": "^2.0.5",
     "del": "^6.0.0",
-    "gifsicle": "^5.3.0",
     "gulp": "^4.0.2",
     "gulp-autoprefixer": "^8.0.0",
     "gulp-cheerio": "^1.0.0",
@@ -26,13 +25,16 @@
     "gulp-svg-sprite": "^1.5.0",
     "gulp-svgmin": "^4.1.0",
     "gulp-uglify-es": "^3.0.0",
+    "intl-tel-input": "^17.0.19",
     "jquery": "^3.6.0",
+    "jquery-mask-plugin": "^1.14.16",
     "normalize.css": "^8.0.1",
     "pngquant-bin": "^6.0.0",
     "sass": "^1.50.1",
     "slick-carousel": "^1.8.1"
   },
   "dependencies": {
-    "emmet-atom-plugin": "^0.0.1"
+    "emmet-atom-plugin": "^0.0.1",
+    "gifsicle": "^7.0.1"
   }
 }

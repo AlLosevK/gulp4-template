@@ -45,6 +45,11 @@ const imagemin = require('gulp-imagemin');
 const pngquant = require('imagemin-pngquant');
 const jpegrecompress = require('imagemin-jpeg-recompress');
 
+
+// Модули для Шаблона
+const consolidate = require("gulp-consolidate");
+const pages = require("./app/template/index.json");
+
 // Определяем логику работы Browsersync
 function browsersync() {
 	browserSync.init({ // Инициализация Browsersync
@@ -55,7 +60,7 @@ function browsersync() {
 }
 
 function pugf() {
-	return src('app/pug/index*.pug')
+	return src('app/pug/*.pug')
 	.pipe(pug({pretty: true}))
 	.pipe(dest('app/'))
 	.pipe(browserSync.stream())
@@ -165,6 +170,15 @@ function cleandist() {
 	return del('dist/**/*', { force: true }) // Удаляем всё содержимое папки "dist/"
 }
 
+function template() {
+	return src("./app/template/template.html")
+  .pipe(consolidate("lodash", {
+      pages: pages
+  }))
+  .pipe(dest("./app/"))
+	.pipe(browserSync.stream());
+};
+
 function startwatch() {
 	// Мониторим файлы препроцессора Pug на изменения
 	watch('app/pug/**/*.pug', pugf);
@@ -188,7 +202,7 @@ function startwatch() {
 	watch('app/images/src/**/*', images);
 
 	// Мониторим папку-источник изображений и выполняем images(), если есть изменения
-	watch('app/images/src/**/*.*', webpf);
+	watch('app/images/src/**/*', webpf);
 
 }
 
@@ -213,8 +227,10 @@ exports.svgsprite = svgsprite;
 // Экспортируем функцию cleanimg() как таск cleanimg
 exports.cleanimg = cleanimg;
 
+exports.template = template;
+
 // Создаём новый таск "build", который последовательно выполняет нужные операции
-exports.build = series(cleandist, styles, scripts, webpf, images, buildcopy);
+exports.build = series(cleandist, styles, scripts, webpf, images, template, buildcopy);
 
 // Экспортируем дефолтный таск с нужным набором функций
 exports.default = parallel(pugf, svgsprite, webpf, images, styles, scripts, browsersync, startwatch);
